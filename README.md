@@ -18,6 +18,10 @@ A comprehensive event registration system built with Next.js, Google Sheets API,
   - Public registration forms for events
   - Form validation
   - Responsive design
+  - Multi-step registration process
+  - Custom form fields based on event requirements
+  - Real-time validation
+  - Mobile-friendly interface
 
 ## Tech Stack
 
@@ -27,6 +31,8 @@ A comprehensive event registration system built with Next.js, Google Sheets API,
 - **Data Storage**: Google Sheets API
 - **Image Storage**: GitHub API
 - **Export**: jsPDF, xlsx
+- **Form Handling**: React Hook Form
+- **Validation**: Zod
 
 ## Getting Started
 
@@ -90,8 +96,26 @@ NEXTAUTH_URL=http://localhost:3000
 ### Event Registration
 
 1. Access the event registration form at `/{company_name}/{event_id}`
-2. Fill out the form and submit
-3. Receive confirmation of successful registration
+2. View event details and click "Register" to begin the registration process
+3. Complete the multi-step registration form with personal and event-specific information
+4. Submit the form and receive confirmation of successful registration
+
+## Project Structure
+
+```
+src/
+├── app/                      # Page components and routes
+│   ├── api/                  # API endpoints
+│   ├── control_admin/        # Admin dashboard
+│   ├── control_comp/         # Company dashboard
+│   ├── login/                # Login page
+│   └── [company_name]/       # Dynamic company pages
+│       └── [event_id]/       # Event registration forms
+│           └── register/     # Multi-step registration process
+├── components/               # Reusable components
+├── lib/                      # Helper libraries
+└── utils/                    # Utility functions
+```
 
 ## License
 
