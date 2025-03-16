@@ -41,16 +41,39 @@ export async function GET(request: NextRequest) {
     // First row is headers
     const headers = tableData[0];
     
-    // Map registrations to objects
-    const registrations = tableData.slice(1).map((row) => {
-      const registration: Record<string, string> = {};
-      
-      headers.forEach((header, index) => {
-        registration[header] = row[index] || '';
+    // Find indices of settings columns
+    const imageIndex = headers.indexOf('Image');
+    const descriptionIndex = headers.indexOf('EventDescription');
+    const dateIndex = headers.indexOf('EventDate');
+    const statusIndex = headers.indexOf('EventStatus');
+    
+    // Map registrations to objects, filtering out settings rows
+    const registrations = tableData.slice(1)
+      .filter(row => {
+        // Skip rows that only contain settings data
+        const isSettingsRow = row.every((cell, index) => {
+          // If this is a settings column and has data, or if the cell is empty
+          return (
+            (imageIndex !== -1 && index === imageIndex && cell) ||
+            (descriptionIndex !== -1 && index === descriptionIndex && cell) ||
+            (dateIndex !== -1 && index === dateIndex && cell) ||
+            (statusIndex !== -1 && index === statusIndex && cell) ||
+            !cell
+          );
+        });
+        
+        // Keep only non-settings rows
+        return !isSettingsRow;
+      })
+      .map((row) => {
+        const registration: Record<string, string> = {};
+        
+        headers.forEach((header, index) => {
+          registration[header] = row[index] || '';
+        });
+        
+        return registration;
       });
-      
-      return registration;
-    });
     
     // If user is not admin, remove National ID from the response
     if (session.user.type !== 'admin') {
