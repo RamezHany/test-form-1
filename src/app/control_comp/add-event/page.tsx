@@ -9,6 +9,8 @@ export default function AddEventPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [eventName, setEventName] = useState('');
+  const [eventDescription, setEventDescription] = useState('');
+  const [eventDate, setEventDate] = useState('');
   const [image, setImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -64,6 +66,16 @@ export default function AddEventPage() {
       return;
     }
     
+    if (!eventDescription) {
+      setError('Event description is required');
+      return;
+    }
+    
+    if (!eventDate) {
+      setError('Event date is required');
+      return;
+    }
+    
     setLoading(true);
     setError('');
     
@@ -76,6 +88,8 @@ export default function AddEventPage() {
         body: JSON.stringify({
           companyName: session.user.name,
           eventName,
+          eventDescription,
+          eventDate,
           image,
         }),
       });
@@ -177,6 +191,41 @@ export default function AddEventPage() {
                     onChange={(e) => setEventName(e.target.value)}
                     disabled={loading}
                     placeholder="Enter event name"
+                  />
+                </div>
+                
+                <div className="mb-4">
+                  <label
+                    htmlFor="eventDescription"
+                    className="block text-gray-700 text-sm font-bold mb-2"
+                  >
+                    Event Description
+                  </label>
+                  <textarea
+                    id="eventDescription"
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    value={eventDescription}
+                    onChange={(e) => setEventDescription(e.target.value)}
+                    disabled={loading}
+                    placeholder="Enter event description"
+                    rows={4}
+                  />
+                </div>
+                
+                <div className="mb-4">
+                  <label
+                    htmlFor="eventDate"
+                    className="block text-gray-700 text-sm font-bold mb-2"
+                  >
+                    Event Date
+                  </label>
+                  <input
+                    type="date"
+                    id="eventDate"
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    value={eventDate}
+                    onChange={(e) => setEventDate(e.target.value)}
+                    disabled={loading}
                   />
                 </div>
                 

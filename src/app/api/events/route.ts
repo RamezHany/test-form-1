@@ -78,6 +78,22 @@ export async function GET(request: NextRequest) {
           imageUrl = data[i + 2][imageIndex];
         }
         
+        // Find the event description if it exists in the headers
+        const descriptionIndex = headers.findIndex(h => h === 'EventDescription');
+        let description = '';
+        
+        if (descriptionIndex !== -1 && data[i + 2] && data[i + 2][descriptionIndex]) {
+          description = data[i + 2][descriptionIndex];
+        }
+        
+        // Find the event date if it exists in the headers
+        const dateIndex = headers.findIndex(h => h === 'EventDate');
+        let eventDate = '';
+        
+        if (dateIndex !== -1 && data[i + 2] && data[i + 2][dateIndex]) {
+          eventDate = data[i + 2][dateIndex];
+        }
+        
         // Find the event status if it exists in the headers
         const statusIndex = headers.findIndex(h => h === 'EventStatus');
         let status = 'enabled'; // Default to enabled
@@ -90,6 +106,8 @@ export async function GET(request: NextRequest) {
           id: eventName,
           name: eventName,
           image: imageUrl,
+          description: description,
+          date: eventDate,
           status: status,
           registrations: 0, // We'll calculate this later
           companyStatus: company ? (company[5] || 'enabled') : 'enabled',
@@ -135,12 +153,12 @@ export async function POST(request: NextRequest) {
     const origin = request.headers.get('origin') || 'https://your-production-domain.com';
     
     // Parse request body
-    const { companyName, eventName, image } = await request.json();
+    const { companyName, eventName, eventDescription, eventDate, image } = await request.json();
     
     // Validate required fields
-    if (!companyName || !eventName) {
+    if (!companyName || !eventName || !eventDescription || !eventDate) {
       return NextResponse.json(
-        { error: 'Company name and event name are required' },
+        { error: 'Company name, event name, description and date are required' },
         { status: 400 }
       );
     }
@@ -175,6 +193,8 @@ export async function POST(request: NextRequest) {
       'National ID',
       'Registration Date',
       'Image', // For the event banner
+      'EventDescription', // Event description
+      'EventDate', // Event date
       'EventStatus', // enabled or disabled
     ];
     
@@ -186,8 +206,35 @@ export async function POST(request: NextRequest) {
       // Create a row with the image URL in the correct position (Image column)
       const rowData = Array(headers.length).fill('');
       const imageIndex = headers.findIndex(h => h === 'Image');
+      const descriptionIndex = headers.findIndex(h => h === 'EventDescription');
+      const dateIndex = headers.findIndex(h => h === 'EventDate');
+      
       if (imageIndex !== -1) {
         rowData[imageIndex] = imageUrl;
+      }
+      
+      if (descriptionIndex !== -1) {
+        rowData[descriptionIndex] = eventDescription;
+      }
+      
+      if (dateIndex !== -1) {
+        rowData[dateIndex] = eventDate;
+      }
+      
+      // Add the row to the table
+      await addToTable(companyName, eventName, rowData);
+    } else {
+      // Even if there's no image, we still need to add the description and date
+      const rowData = Array(headers.length).fill('');
+      const descriptionIndex = headers.findIndex(h => h === 'EventDescription');
+      const dateIndex = headers.findIndex(h => h === 'EventDate');
+      
+      if (descriptionIndex !== -1) {
+        rowData[descriptionIndex] = eventDescription;
+      }
+      
+      if (dateIndex !== -1) {
+        rowData[dateIndex] = eventDate;
       }
       
       // Add the row to the table
@@ -200,6 +247,8 @@ export async function POST(request: NextRequest) {
         id: eventName,
         name: eventName,
         image: imageUrl,
+        description: eventDescription,
+        date: eventDate,
         status: 'enabled',
         registrationUrl: `${origin}/${companyName}/${eventName}`,
       },
