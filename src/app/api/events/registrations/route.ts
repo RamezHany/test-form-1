@@ -49,12 +49,12 @@ export async function GET(request: NextRequest) {
     const nationalIdIndex = originalHeaders.indexOf('National ID');
     
     // Create a list of indices to exclude
-    let excludeIndices = [imageIndex, descriptionIndex, dateIndex, statusIndex].filter(index => index !== -1);
+    const settingsIndices = [imageIndex, descriptionIndex, dateIndex, statusIndex].filter(index => index !== -1);
     
-    // If user is not admin, also exclude National ID
-    if (session.user.type !== 'admin' && nationalIdIndex !== -1) {
-      excludeIndices.push(nationalIdIndex);
-    }
+    // Create the final list of indices to exclude
+    const excludeIndices = session.user.type !== 'admin' && nationalIdIndex !== -1 
+      ? [...settingsIndices, nationalIdIndex] 
+      : settingsIndices;
     
     // Filter out settings columns from headers
     const headers = originalHeaders.filter((header, index) => !excludeIndices.includes(index));
