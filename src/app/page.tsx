@@ -10,7 +10,7 @@ export default function HomePage() {
           />
         </div>
         <h1 className="text-5xl font-bold text-blue-800 mb-3">Registration System</h1>
-        <p className="text-3xl text-blue-600 font-light tracking-wide">Creative</p>
+        <p className="text-3xl text-blue-600 font-light tracking-wide">Creativa</p>
       </div>
     </div>
   );
