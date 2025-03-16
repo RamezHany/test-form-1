@@ -191,23 +191,23 @@ export default function EventDetailsPage() {
                 day: 'numeric'
               }) : 'Date not specified'}
             </span>
-          </div>
-          
+              </div>
+              
           <div className="mb-8">
             <h3 className="text-lg font-semibold mb-2">About this event:</h3>
             <p className="text-gray-700 whitespace-pre-line">
               {event?.description || 'No description available.'}
-            </p>
-          </div>
-          
+                </p>
+              </div>
+              
           <div className="flex justify-center">
-            <button
+                <button
               onClick={handleRegisterClick}
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors duration-300"
-            >
+                >
               Register Now
-            </button>
-          </div>
+                </button>
+              </div>
         </div>
       </div>
     </div>

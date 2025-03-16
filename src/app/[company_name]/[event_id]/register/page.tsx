@@ -34,15 +34,6 @@ interface Event {
   companyStatus?: string;
 }
 
-// Define an interface for registration data
-interface Registration {
-  nationalId: string;
-  name?: string;
-  email?: string;
-  phone?: string;
-  [key: string]: unknown; // Allow for other properties
-}
-
 export default function EventRegistrationPage() {
   const params = useParams();
   // Decode URL-encoded parameters
@@ -67,7 +58,6 @@ export default function EventRegistrationPage() {
   const [event, setEvent] = useState<Event | null>(null);
   const [eventDisabled, setEventDisabled] = useState(false);
   const [companyDisabled, setCompanyDisabled] = useState(false);
-  const [registeredNationalIds, setRegisteredNationalIds] = useState<string[]>([]);
 
   useEffect(() => {
     // Fetch event details to verify it exists and get the image
@@ -112,23 +102,6 @@ export default function EventRegistrationPage() {
         if (foundEvent.companyStatus === 'disabled') {
           setCompanyDisabled(true);
         }
-
-        // Fetch registered national IDs for this event
-        try {
-          const registrationsResponse = await fetch(`/api/events/registrations?company=${encodeURIComponent(companyName)}&event=${encodeURIComponent(foundEvent.id)}`);
-          if (registrationsResponse.ok) {
-            const registrationsData = await registrationsResponse.json();
-            if (registrationsData.registrations && Array.isArray(registrationsData.registrations)) {
-              // Extract national IDs from registrations
-              const nationalIds = registrationsData.registrations.map((reg: Registration) => reg.nationalId);
-              setRegisteredNationalIds(nationalIds);
-              console.log('Registered national IDs:', nationalIds);
-            }
-          }
-        } catch (error) {
-          console.error('Error fetching registrations:', error);
-          // Continue even if we can't fetch registrations
-        }
       } catch (error) {
         console.error('Error fetching event details:', error);
         if (!companyDisabled) {
@@ -161,12 +134,7 @@ export default function EventRegistrationPage() {
       case 'college':
         return value.trim() === '' ? 'College name is required' : '';
       case 'nationalId':
-        if (value.trim() === '') {
-          return 'National ID is required';
-        } else if (registeredNationalIds.includes(value.trim())) {
-          return 'You are already registered for this event';
-        }
-        return '';
+        return value.trim() === '' ? 'National ID is required' : '';
       default:
         return '';
     }
@@ -245,9 +213,6 @@ export default function EventRegistrationPage() {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to register for event');
       }
-      
-      // Add the national ID to the registered list to prevent duplicate registrations
-      setRegisteredNationalIds(prev => [...prev, formData.nationalId]);
       
       // Show success message
       setSuccess(true);
@@ -547,14 +512,7 @@ export default function EventRegistrationPage() {
                   required
                 />
                 {formErrors.nationalId && (
-                  <div>
-                    <p className="text-red-500 text-xs italic mt-1">{formErrors.nationalId}</p>
-                    {formErrors.nationalId === 'You are already registered for this event' && (
-                      <Link href={`/${companyName}/${eventId}`} className="text-blue-500 text-xs hover:underline block mt-1">
-                        Return to Event
-                      </Link>
-                    )}
-                  </div>
+                  <p className="text-red-500 text-xs italic mt-1">{formErrors.nationalId}</p>
                 )}
                 <p className="text-xs text-gray-500 mt-1">
                   Your National ID will only be visible to administrators.
