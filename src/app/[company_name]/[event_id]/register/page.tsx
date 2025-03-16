@@ -58,6 +58,7 @@ export default function EventRegistrationPage() {
   const [event, setEvent] = useState<Event | null>(null);
   const [eventDisabled, setEventDisabled] = useState(false);
   const [companyDisabled, setCompanyDisabled] = useState(false);
+  const [registeredNationalIds, setRegisteredNationalIds] = useState<string[]>([]);
 
   useEffect(() => {
     // Fetch event details to verify it exists and get the image
@@ -102,6 +103,23 @@ export default function EventRegistrationPage() {
         if (foundEvent.companyStatus === 'disabled') {
           setCompanyDisabled(true);
         }
+
+        // Fetch registered national IDs for this event
+        try {
+          const registrationsResponse = await fetch(`/api/events/registrations?company=${encodeURIComponent(companyName)}&event=${encodeURIComponent(foundEvent.id)}`);
+          if (registrationsResponse.ok) {
+            const registrationsData = await registrationsResponse.json();
+            if (registrationsData.registrations && Array.isArray(registrationsData.registrations)) {
+              // Extract national IDs from registrations
+              const nationalIds = registrationsData.registrations.map((reg: any) => reg.nationalId);
+              setRegisteredNationalIds(nationalIds);
+              console.log('Registered national IDs:', nationalIds);
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching registrations:', error);
+          // Continue even if we can't fetch registrations
+        }
       } catch (error) {
         console.error('Error fetching event details:', error);
         if (!companyDisabled) {
@@ -118,23 +136,28 @@ export default function EventRegistrationPage() {
   const validateField = (name: string, value: string): string => {
     switch (name) {
       case 'name':
-        return value.trim() === '' ? 'الاسم مطلوب' : '';
+        return value.trim() === '' ? 'Full name is required' : '';
       case 'phone':
         return value.trim() === '' 
-          ? 'رقم الهاتف مطلوب' 
+          ? 'Phone number is required' 
           : !/^\d{10,15}$/.test(value) 
-            ? 'رقم الهاتف غير صحيح، يجب أن يكون من 10 إلى 15 رقم' 
+            ? 'Invalid phone number format. Must be 10-15 digits' 
             : '';
       case 'email':
         return value.trim() === '' 
-          ? 'البريد الإلكتروني مطلوب' 
+          ? 'Email is required' 
           : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) 
-            ? 'صيغة البريد الإلكتروني غير صحيحة' 
+            ? 'Invalid email format' 
             : '';
       case 'college':
-        return value.trim() === '' ? 'اسم الكلية مطلوب' : '';
+        return value.trim() === '' ? 'College name is required' : '';
       case 'nationalId':
-        return value.trim() === '' ? 'الرقم القومي مطلوب' : '';
+        if (value.trim() === '') {
+          return 'National ID is required';
+        } else if (registeredNationalIds.includes(value.trim())) {
+          return 'This National ID is already registered for this event';
+        }
+        return '';
       default:
         return '';
     }
@@ -213,6 +236,9 @@ export default function EventRegistrationPage() {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to register for event');
       }
+      
+      // Add the national ID to the registered list to prevent duplicate registrations
+      setRegisteredNationalIds(prev => [...prev, formData.nationalId]);
       
       // Show success message
       setSuccess(true);
