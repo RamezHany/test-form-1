@@ -48,15 +48,19 @@ export async function GET(request: NextRequest) {
     const statusIndex = originalHeaders.indexOf('EventStatus');
     const nationalIdIndex = originalHeaders.indexOf('National ID');
     
-    // Create a list of indices to exclude
+    // Create a list of indices to exclude (only settings columns)
     const settingsIndices = [imageIndex, descriptionIndex, dateIndex, statusIndex].filter(index => index !== -1);
     
     // Create the final list of indices to exclude
-    const excludeIndices = session.user.type !== 'admin' && nationalIdIndex !== -1 
-      ? [...settingsIndices, nationalIdIndex] 
-      : settingsIndices;
+    // For admin, only exclude settings columns
+    // For non-admin, also exclude National ID
+    const excludeIndices = session.user.type === 'admin' 
+      ? settingsIndices 
+      : (nationalIdIndex !== -1 
+          ? [...settingsIndices, nationalIdIndex] 
+          : settingsIndices);
     
-    // Filter out settings columns from headers
+    // Filter out excluded columns from headers
     const headers = originalHeaders.filter((header, index) => !excludeIndices.includes(index));
     
     // Map registrations to objects, filtering out settings rows and columns
@@ -80,7 +84,7 @@ export async function GET(request: NextRequest) {
       .map((row) => {
         const registration: Record<string, string> = {};
         
-        // Only include non-settings columns
+        // Only include non-excluded columns
         originalHeaders.forEach((header, index) => {
           if (!excludeIndices.includes(index)) {
             registration[header] = row[index] || '';
