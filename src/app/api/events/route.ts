@@ -119,8 +119,40 @@ export async function GET(request: NextRequest) {
     for (const event of events) {
       try {
         const eventData = await getTableData(companyName, event.id);
-        // Subtract 1 for the header row
-        event.registrations = Math.max(0, eventData.length - 1);
+        
+        // Get the headers row
+        const headers = eventData[0] || [];
+        
+        // Find the indices of the settings columns
+        const imageIndex = headers.indexOf('Image');
+        const descriptionIndex = headers.indexOf('EventDescription');
+        const dateIndex = headers.indexOf('EventDate');
+        const statusIndex = headers.indexOf('EventStatus');
+        
+        // Count only rows that are actual registrations (not settings)
+        let registrationCount = 0;
+        
+        for (let i = 1; i < eventData.length; i++) {
+          const row = eventData[i];
+          
+          // Skip rows that only contain settings data
+          const isSettingsRow = row.every((cell, index) => {
+            // If this is a settings column and has data, or if the cell is empty
+            return (
+              (index === imageIndex && cell) ||
+              (index === descriptionIndex && cell) ||
+              (index === dateIndex && cell) ||
+              (index === statusIndex && cell) ||
+              !cell
+            );
+          });
+          
+          if (!isSettingsRow) {
+            registrationCount++;
+          }
+        }
+        
+        event.registrations = registrationCount;
       } catch (error) {
         console.error(`Error getting data for event ${event.id}:`, error);
         // Continue with the next event
@@ -201,55 +233,32 @@ export async function POST(request: NextRequest) {
     // Create the event table in the company sheet
     await createTable(companyName, eventName, headers);
     
-    // If image was uploaded, add it as the first row in the table
-    if (imageUrl) {
-      // Create a row with the image URL in the correct position (Image column)
-      const rowData = Array(headers.length).fill('');
-      const imageIndex = headers.findIndex(h => h === 'Image');
-      const descriptionIndex = headers.findIndex(h => h === 'EventDescription');
-      const dateIndex = headers.findIndex(h => h === 'EventDate');
-      const statusIndex = headers.findIndex(h => h === 'EventStatus');
-      
-      if (imageIndex !== -1) {
-        rowData[imageIndex] = imageUrl;
-      }
-      
-      if (descriptionIndex !== -1) {
-        rowData[descriptionIndex] = eventDescription;
-      }
-      
-      if (dateIndex !== -1) {
-        rowData[dateIndex] = eventDate;
-      }
-      
-      if (statusIndex !== -1) {
-        rowData[statusIndex] = 'enabled'; // Set default status to enabled
-      }
-      
-      // Add the row to the table
-      await addToTable(companyName, eventName, rowData);
-    } else {
-      // Even if there's no image, we still need to add the description and date
-      const rowData = Array(headers.length).fill('');
-      const descriptionIndex = headers.findIndex(h => h === 'EventDescription');
-      const dateIndex = headers.findIndex(h => h === 'EventDate');
-      const statusIndex = headers.findIndex(h => h === 'EventStatus');
-      
-      if (descriptionIndex !== -1) {
-        rowData[descriptionIndex] = eventDescription;
-      }
-      
-      if (dateIndex !== -1) {
-        rowData[dateIndex] = eventDate;
-      }
-      
-      if (statusIndex !== -1) {
-        rowData[statusIndex] = 'enabled'; // Set default status to enabled
-      }
-      
-      // Add the row to the table
-      await addToTable(companyName, eventName, rowData);
+    // Create a separate row for settings data
+    const settingsRow = Array(headers.length).fill('');
+    const imageIndex = headers.findIndex(h => h === 'Image');
+    const descriptionIndex = headers.findIndex(h => h === 'EventDescription');
+    const dateIndex = headers.findIndex(h => h === 'EventDate');
+    const statusIndex = headers.findIndex(h => h === 'EventStatus');
+    
+    // Add settings data to the row
+    if (imageUrl && imageIndex !== -1) {
+      settingsRow[imageIndex] = imageUrl;
     }
+    
+    if (descriptionIndex !== -1) {
+      settingsRow[descriptionIndex] = eventDescription;
+    }
+    
+    if (dateIndex !== -1) {
+      settingsRow[dateIndex] = eventDate;
+    }
+    
+    if (statusIndex !== -1) {
+      settingsRow[statusIndex] = 'enabled'; // Set default status to enabled
+    }
+    
+    // Add the settings row to the table
+    await addToTable(companyName, eventName, settingsRow);
     
     return NextResponse.json({
       success: true,
