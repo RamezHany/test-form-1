@@ -208,6 +208,7 @@ export async function POST(request: NextRequest) {
       const imageIndex = headers.findIndex(h => h === 'Image');
       const descriptionIndex = headers.findIndex(h => h === 'EventDescription');
       const dateIndex = headers.findIndex(h => h === 'EventDate');
+      const statusIndex = headers.findIndex(h => h === 'EventStatus');
       
       if (imageIndex !== -1) {
         rowData[imageIndex] = imageUrl;
@@ -221,6 +222,10 @@ export async function POST(request: NextRequest) {
         rowData[dateIndex] = eventDate;
       }
       
+      if (statusIndex !== -1) {
+        rowData[statusIndex] = 'enabled'; // Set default status to enabled
+      }
+      
       // Add the row to the table
       await addToTable(companyName, eventName, rowData);
     } else {
@@ -228,6 +233,7 @@ export async function POST(request: NextRequest) {
       const rowData = Array(headers.length).fill('');
       const descriptionIndex = headers.findIndex(h => h === 'EventDescription');
       const dateIndex = headers.findIndex(h => h === 'EventDate');
+      const statusIndex = headers.findIndex(h => h === 'EventStatus');
       
       if (descriptionIndex !== -1) {
         rowData[descriptionIndex] = eventDescription;
@@ -235,6 +241,10 @@ export async function POST(request: NextRequest) {
       
       if (dateIndex !== -1) {
         rowData[dateIndex] = eventDate;
+      }
+      
+      if (statusIndex !== -1) {
+        rowData[statusIndex] = 'enabled'; // Set default status to enabled
       }
       
       // Add the row to the table
