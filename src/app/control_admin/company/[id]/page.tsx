@@ -464,17 +464,21 @@ export default function CompanyEventsPage() {
                         </div>
                       </div>
                     </div>
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleToggleEventStatus(event.id, event.status || 'enabled')}
-                        className={`${
-                          event.status === 'disabled' 
-                            ? 'bg-green-100 hover:bg-green-200 text-green-800' 
-                            : 'bg-red-100 hover:bg-red-200 text-red-800'
-                        } font-semibold py-2 px-4 rounded`}
-                      >
-                        {event.status === 'disabled' ? 'Enable' : 'Disable'}
-                      </button>
+                    <div className="flex space-x-4 items-center">
+                      <div className="flex items-center">
+                        <label className="inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="sr-only peer"
+                            checked={event.status !== 'disabled'}
+                            onChange={() => handleToggleEventStatus(event.id, event.status || 'enabled')}
+                          />
+                          <div className={`relative w-11 h-6 ${event.status === 'disabled' ? 'bg-gray-200' : 'bg-blue-600'} rounded-full peer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${event.status !== 'disabled' ? 'after:translate-x-full' : ''}`}></div>
+                          <span className="ms-3 text-sm font-medium text-gray-900">
+                            {event.status === 'disabled' ? 'Disabled' : 'Enabled'}
+                          </span>
+                        </label>
+                      </div>
                       <button
                         onClick={() => handleViewRegistrations(event.id)}
                         className="bg-blue-100 hover:bg-blue-200 text-blue-800 font-semibold py-2 px-4 rounded"
