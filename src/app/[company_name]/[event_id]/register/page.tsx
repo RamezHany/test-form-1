@@ -34,6 +34,15 @@ interface Event {
   companyStatus?: string;
 }
 
+// Define an interface for registration data
+interface Registration {
+  nationalId: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  [key: string]: unknown; // Allow for other properties
+}
+
 export default function EventRegistrationPage() {
   const params = useParams();
   // Decode URL-encoded parameters
@@ -111,7 +120,7 @@ export default function EventRegistrationPage() {
             const registrationsData = await registrationsResponse.json();
             if (registrationsData.registrations && Array.isArray(registrationsData.registrations)) {
               // Extract national IDs from registrations
-              const nationalIds = registrationsData.registrations.map((reg: any) => reg.nationalId);
+              const nationalIds = registrationsData.registrations.map((reg: Registration) => reg.nationalId);
               setRegisteredNationalIds(nationalIds);
               console.log('Registered national IDs:', nationalIds);
             }
