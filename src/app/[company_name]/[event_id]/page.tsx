@@ -5,16 +5,6 @@ import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 
-interface FormData {
-  name: string;
-  phone: string;
-  email: string;
-  gender: 'male' | 'female';
-  college: string;
-  status: 'student' | 'graduate';
-  nationalId: string;
-}
-
 interface Event {
   id: string;
   name: string;
@@ -93,7 +83,7 @@ export default function EventDetailsPage() {
     };
     
     fetchEventDetails();
-  }, [companyName, eventId]);
+  }, [companyName, eventId, companyDisabled]);
 
   const handleRegisterClick = () => {
     router.push(`/${companyName}/${eventId}/register`);

@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Image from 'next/image';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 
 interface FormData {
@@ -28,7 +27,6 @@ interface Event {
 
 export default function EventRegistrationPage() {
   const params = useParams();
-  const router = useRouter();
   // Decode URL-encoded parameters
   const companyName = decodeURIComponent(params.company_name as string);
   const eventId = decodeURIComponent(params.event_id as string);
@@ -105,7 +103,7 @@ export default function EventRegistrationPage() {
     };
     
     fetchEventDetails();
-  }, [companyName, eventId]);
+  }, [companyName, eventId, companyDisabled]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
