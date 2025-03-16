@@ -2,9 +2,9 @@ export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-blue-100">
       <div className="text-center">
-        <div className="mb-2 mx-auto relative">
+        <div className="mb-8 mx-auto">
           <svg 
-            className="w-56 h-56 mx-auto text-blue-600 animate-pulse" 
+            className="w-64 h-64 mx-auto text-blue-600" 
             fill="currentColor" 
             xmlns="http://www.w3.org/2000/svg" 
             viewBox="0 0 16 16"
@@ -23,16 +23,8 @@ export default function HomePage() {
             </defs>
           </svg>
         </div>
-        <div className="flex items-center justify-center space-x-2 mb-8">
-          <p className="text-2xl font-semibold text-blue-700">Loading</p>
-          <span className="flex space-x-1">
-            <span className="w-2 h-2 bg-blue-700 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-            <span className="w-2 h-2 bg-blue-700 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-            <span className="w-2 h-2 bg-blue-700 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
-          </span>
-        </div>
         <h1 className="text-5xl font-bold text-blue-800 mb-3">Registration System</h1>
-        <p className="text-3xl text-blue-600 font-light tracking-wide">Creativa</p>
+        <p className="text-3xl text-blue-600 font-light tracking-wide">Creative</p>
       </div>
     </div>
   );
