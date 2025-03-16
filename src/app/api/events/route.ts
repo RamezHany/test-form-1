@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSheetData, getTableData, createTable, updateRow } from '@/lib/sheets';
+import { getSheetData, getTableData, createTable, updateRow, addToTable } from '@/lib/sheets';
 import { uploadImage } from '@/lib/github';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
@@ -180,8 +180,15 @@ export async function POST(request: NextRequest) {
     
     // If image was uploaded, add it as the first row in the table
     if (imageUrl) {
-      // We'll use the addToTable function from sheets.ts
-      // But for now, we'll just return the event data
+      // Create a row with the image URL in the correct position (Image column)
+      const rowData = Array(headers.length).fill('');
+      const imageIndex = headers.findIndex(h => h === 'Image');
+      if (imageIndex !== -1) {
+        rowData[imageIndex] = imageUrl;
+      }
+      
+      // Add the row to the table
+      await addToTable(companyName, eventName, rowData);
     }
     
     return NextResponse.json({
