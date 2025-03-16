@@ -482,12 +482,6 @@ export default function CompanyEventsPage() {
                       >
                         View Registrations
                       </button>
-                      <button
-                        onClick={() => handleDeleteEvent(event.id)}
-                        className="bg-red-100 hover:bg-red-200 text-red-800 font-semibold py-2 px-4 rounded"
-                      >
-                        Delete
-                      </button>
                     </div>
                   </li>
                 ))}
