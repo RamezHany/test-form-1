@@ -39,15 +39,21 @@ export async function GET(request: NextRequest) {
     const tableData = await getTableData(companyName, eventName);
     
     // First row is headers
-    const headers = tableData[0];
+    const originalHeaders = tableData[0];
     
     // Find indices of settings columns
-    const imageIndex = headers.indexOf('Image');
-    const descriptionIndex = headers.indexOf('EventDescription');
-    const dateIndex = headers.indexOf('EventDate');
-    const statusIndex = headers.indexOf('EventStatus');
+    const imageIndex = originalHeaders.indexOf('Image');
+    const descriptionIndex = originalHeaders.indexOf('EventDescription');
+    const dateIndex = originalHeaders.indexOf('EventDate');
+    const statusIndex = originalHeaders.indexOf('EventStatus');
     
-    // Map registrations to objects, filtering out settings rows
+    // Create a list of indices to exclude
+    const excludeIndices = [imageIndex, descriptionIndex, dateIndex, statusIndex].filter(index => index !== -1);
+    
+    // Filter out settings columns from headers
+    const headers = originalHeaders.filter((header, index) => !excludeIndices.includes(index));
+    
+    // Map registrations to objects, filtering out settings rows and columns
     const registrations = tableData.slice(1)
       .filter(row => {
         // Skip rows that only contain settings data
@@ -68,8 +74,11 @@ export async function GET(request: NextRequest) {
       .map((row) => {
         const registration: Record<string, string> = {};
         
-        headers.forEach((header, index) => {
-          registration[header] = row[index] || '';
+        // Only include non-settings columns
+        originalHeaders.forEach((header, index) => {
+          if (!excludeIndices.includes(index)) {
+            registration[header] = row[index] || '';
+          }
         });
         
         return registration;
