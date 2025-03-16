@@ -134,6 +134,7 @@ export default function CompanyEventsPage() {
     if (!company) return;
     
     const newStatus = currentStatus === 'enabled' ? 'disabled' : 'enabled';
+    console.log(`Toggling event status: ${eventId} from ${currentStatus} to ${newStatus}`);
     
     try {
       const response = await fetch('/api/events', {
@@ -142,14 +143,16 @@ export default function CompanyEventsPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          companyName: company.name,
-          eventName: eventId,
+          company: company.name,
+          event: eventId,
           status: newStatus,
         }),
       });
       
       if (!response.ok) {
-        throw new Error('Failed to update event status');
+        const errorData = await response.json();
+        console.error('Error response:', errorData);
+        throw new Error(`Failed to update event status: ${errorData.error || response.statusText}`);
       }
       
       // Update local state
@@ -495,4 +498,4 @@ export default function CompanyEventsPage() {
       </main>
     </div>
   );
-} 
+}
