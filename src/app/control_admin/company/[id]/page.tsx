@@ -103,33 +103,6 @@ export default function CompanyEventsPage() {
     router.push(`/control_admin/company/${companyId}/event/${eventId}`);
   };
 
-  const handleDeleteEvent = async (eventId: string) => {
-    if (!company) return;
-    
-    if (!confirm('Are you sure you want to delete this event?')) {
-      return;
-    }
-    
-    try {
-      const response = await fetch(
-        `/api/events?company=${company.name}&event=${eventId}`,
-        {
-          method: 'DELETE',
-        }
-      );
-      
-      if (!response.ok) {
-        throw new Error('Failed to delete event');
-      }
-      
-      // Refresh events list
-      fetchCompanyAndEvents();
-    } catch (error) {
-      console.error('Error deleting event:', error);
-      setError('Failed to delete event');
-    }
-  };
-
   const handleToggleEventStatus = async (eventId: string, currentStatus: string) => {
     if (!company) return;
     
