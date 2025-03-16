@@ -164,7 +164,7 @@ export default function EventRegistrationPage() {
         if (value.trim() === '') {
           return 'National ID is required';
         } else if (registeredNationalIds.includes(value.trim())) {
-          return 'This National ID is already registered for this event';
+          return 'You are already registered for this event';
         }
         return '';
       default:
@@ -547,7 +547,14 @@ export default function EventRegistrationPage() {
                   required
                 />
                 {formErrors.nationalId && (
-                  <p className="text-red-500 text-xs italic mt-1">{formErrors.nationalId}</p>
+                  <div>
+                    <p className="text-red-500 text-xs italic mt-1">{formErrors.nationalId}</p>
+                    {formErrors.nationalId === 'You are already registered for this event' && (
+                      <Link href={`/${companyName}/${eventId}`} className="text-blue-500 text-xs hover:underline block mt-1">
+                        Return to Event
+                      </Link>
+                    )}
+                  </div>
                 )}
                 <p className="text-xs text-gray-500 mt-1">
                   Your National ID will only be visible to administrators.
