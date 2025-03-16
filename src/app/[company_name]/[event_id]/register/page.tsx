@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import Image from 'next/image';
 import Link from 'next/link';
 
 interface FormData {
@@ -254,6 +255,17 @@ export default function EventRegistrationPage() {
   return (
     <div className="min-h-screen bg-gray-100 py-12">
       <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+        {event?.image && (
+          <div className="w-full h-64 relative">
+            <Image
+              src={event.image}
+              alt={`${companyName} - ${eventId} Event`}
+              fill
+              className="object-cover"
+            />
+          </div>
+        )}
+        
         <div className="p-8">
           <h1 className="text-3xl font-bold text-center mb-2">
             Register for {event?.name}
@@ -268,6 +280,33 @@ export default function EventRegistrationPage() {
                 <p className="font-bold">Registration Successful!</p>
                 <p>Thank you for registering for this event.</p>
               </div>
+              
+              {event?.image && (
+                <div className="w-full h-48 relative mb-6">
+                  <Image
+                    src={event.image}
+                    alt={`${companyName} - ${eventId} Event`}
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              )}
+              
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold mb-2">Event Details:</h3>
+                <p className="text-gray-700 mb-2">
+                  <span className="font-semibold">Date:</span> {event?.date ? new Date(event.date).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  }) : 'Date not specified'}
+                </p>
+                <p className="text-gray-700 whitespace-pre-line">
+                  <span className="font-semibold">Description:</span> {event?.description || 'No description available.'}
+                </p>
+              </div>
+              
               <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4 justify-center">
                 <button
                   onClick={() => setSuccess(false)}
