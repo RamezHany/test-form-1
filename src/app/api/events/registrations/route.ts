@@ -46,9 +46,15 @@ export async function GET(request: NextRequest) {
     const descriptionIndex = originalHeaders.indexOf('EventDescription');
     const dateIndex = originalHeaders.indexOf('EventDate');
     const statusIndex = originalHeaders.indexOf('EventStatus');
+    const nationalIdIndex = originalHeaders.indexOf('National ID');
     
     // Create a list of indices to exclude
-    const excludeIndices = [imageIndex, descriptionIndex, dateIndex, statusIndex].filter(index => index !== -1);
+    let excludeIndices = [imageIndex, descriptionIndex, dateIndex, statusIndex].filter(index => index !== -1);
+    
+    // If user is not admin, also exclude National ID
+    if (session.user.type !== 'admin' && nationalIdIndex !== -1) {
+      excludeIndices.push(nationalIdIndex);
+    }
     
     // Filter out settings columns from headers
     const headers = originalHeaders.filter((header, index) => !excludeIndices.includes(index));
@@ -83,13 +89,6 @@ export async function GET(request: NextRequest) {
         
         return registration;
       });
-    
-    // If user is not admin, remove National ID from the response
-    if (session.user.type !== 'admin') {
-      registrations.forEach((registration) => {
-        delete registration['National ID'];
-      });
-    }
     
     return NextResponse.json({
       headers,
