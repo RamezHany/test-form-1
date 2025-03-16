@@ -15,6 +15,14 @@ interface FormData {
   nationalId: string;
 }
 
+interface FormErrors {
+  name?: string;
+  phone?: string;
+  email?: string;
+  college?: string;
+  nationalId?: string;
+}
+
 interface Event {
   id: string;
   name: string;
@@ -42,6 +50,7 @@ export default function EventRegistrationPage() {
     nationalId: '',
   });
   
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -106,11 +115,43 @@ export default function EventRegistrationPage() {
     fetchEventDetails();
   }, [companyName, eventId, companyDisabled]);
 
+  const validateField = (name: string, value: string): string => {
+    switch (name) {
+      case 'name':
+        return value.trim() === '' ? 'الاسم مطلوب' : '';
+      case 'phone':
+        return value.trim() === '' 
+          ? 'رقم الهاتف مطلوب' 
+          : !/^\d{10,15}$/.test(value) 
+            ? 'رقم الهاتف غير صحيح، يجب أن يكون من 10 إلى 15 رقم' 
+            : '';
+      case 'email':
+        return value.trim() === '' 
+          ? 'البريد الإلكتروني مطلوب' 
+          : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) 
+            ? 'صيغة البريد الإلكتروني غير صحيحة' 
+            : '';
+      case 'college':
+        return value.trim() === '' ? 'اسم الكلية مطلوب' : '';
+      case 'nationalId':
+        return value.trim() === '' ? 'الرقم القومي مطلوب' : '';
+      default:
+        return '';
+    }
+  };
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    // Validate field on change
+    const errorMessage = validateField(name, value);
+    setFormErrors(prev => ({
+      ...prev,
+      [name]: errorMessage
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -127,32 +168,24 @@ export default function EventRegistrationPage() {
       return;
     }
     
-    // Validate form
-    if (
-      !formData.name ||
-      !formData.phone ||
-      !formData.email ||
-      !formData.gender ||
-      !formData.college ||
-      !formData.status ||
-      !formData.nationalId
-    ) {
-      setError('All fields are required');
-      return;
-    }
+    // Validate all fields
+    const errors: FormErrors = {};
+    let hasErrors = false;
     
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setError('Invalid email format');
-      return;
-    }
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key === 'gender' || key === 'status') return; // Skip select fields
+      
+      const error = validateField(key, value as string);
+      if (error) {
+        errors[key as keyof FormErrors] = error;
+        hasErrors = true;
+      }
+    });
     
-    // Validate phone number (simple validation)
-    const phoneRegex = /^\d{10,15}$/;
-    if (!phoneRegex.test(formData.phone)) {
-      setError('Invalid phone number format');
-      return;
+    setFormErrors(errors);
+    
+    if (hasErrors) {
+      return; // Stop form submission if there are errors
     }
     
     setSubmitting(true);
@@ -194,6 +227,7 @@ export default function EventRegistrationPage() {
         status: 'student',
         nationalId: '',
       });
+      setFormErrors({});
     } catch (error) {
       console.error('Error registering for event:', error);
       setError(error instanceof Error ? error.message : 'Failed to register for event');
@@ -341,12 +375,15 @@ export default function EventRegistrationPage() {
                   type="text"
                   id="name"
                   name="name"
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className={`shadow appearance-none border ${formErrors.name ? 'border-red-500' : ''} rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
                   value={formData.name}
                   onChange={handleChange}
                   disabled={submitting}
                   required
                 />
+                {formErrors.name && (
+                  <p className="text-red-500 text-xs italic mt-1">{formErrors.name}</p>
+                )}
               </div>
               
               <div className="mb-4">
@@ -360,12 +397,15 @@ export default function EventRegistrationPage() {
                   type="tel"
                   id="phone"
                   name="phone"
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className={`shadow appearance-none border ${formErrors.phone ? 'border-red-500' : ''} rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
                   value={formData.phone}
                   onChange={handleChange}
                   disabled={submitting}
                   required
                 />
+                {formErrors.phone && (
+                  <p className="text-red-500 text-xs italic mt-1">{formErrors.phone}</p>
+                )}
               </div>
               
               <div className="mb-4">
@@ -379,12 +419,15 @@ export default function EventRegistrationPage() {
                   type="email"
                   id="email"
                   name="email"
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className={`shadow appearance-none border ${formErrors.email ? 'border-red-500' : ''} rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
                   value={formData.email}
                   onChange={handleChange}
                   disabled={submitting}
                   required
                 />
+                {formErrors.email && (
+                  <p className="text-red-500 text-xs italic mt-1">{formErrors.email}</p>
+                )}
               </div>
               
               <div className="mb-4">
@@ -419,12 +462,15 @@ export default function EventRegistrationPage() {
                   type="text"
                   id="college"
                   name="college"
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className={`shadow appearance-none border ${formErrors.college ? 'border-red-500' : ''} rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
                   value={formData.college}
                   onChange={handleChange}
                   disabled={submitting}
                   required
                 />
+                {formErrors.college && (
+                  <p className="text-red-500 text-xs italic mt-1">{formErrors.college}</p>
+                )}
               </div>
               
               <div className="mb-4">
@@ -459,12 +505,15 @@ export default function EventRegistrationPage() {
                   type="text"
                   id="nationalId"
                   name="nationalId"
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className={`shadow appearance-none border ${formErrors.nationalId ? 'border-red-500' : ''} rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
                   value={formData.nationalId}
                   onChange={handleChange}
                   disabled={submitting}
                   required
                 />
+                {formErrors.nationalId && (
+                  <p className="text-red-500 text-xs italic mt-1">{formErrors.nationalId}</p>
+                )}
                 <p className="text-xs text-gray-500 mt-1">
                   Your National ID will only be visible to administrators.
                 </p>
