@@ -466,18 +466,12 @@ export default function CompanyEventsPage() {
                     </div>
                     <div className="flex space-x-4 items-center">
                       <div className="flex items-center">
-                        <label className="inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            className="sr-only peer"
-                            checked={event.status !== 'disabled'}
-                            onChange={() => handleToggleEventStatus(event.id, event.status || 'enabled')}
-                          />
+                        <div className="inline-flex items-center cursor-pointer" onClick={() => handleToggleEventStatus(event.id, event.status || 'enabled')}>
                           <div className={`relative w-11 h-6 ${event.status === 'disabled' ? 'bg-gray-200' : 'bg-blue-600'} rounded-full peer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${event.status !== 'disabled' ? 'after:translate-x-full' : ''}`}></div>
                           <span className="ms-3 text-sm font-medium text-gray-900">
                             {event.status === 'disabled' ? 'Disabled' : 'Enabled'}
                           </span>
-                        </label>
+                        </div>
                       </div>
                       <button
                         onClick={() => handleViewRegistrations(event.id)}
