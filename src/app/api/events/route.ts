@@ -131,6 +131,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Get the origin from request headers
+    const origin = request.headers.get('origin') || 'https://your-production-domain.com';
+    
     // Parse request body
     const { companyName, eventName, image } = await request.json();
     
@@ -198,7 +201,7 @@ export async function POST(request: NextRequest) {
         name: eventName,
         image: imageUrl,
         status: 'enabled',
-        registrationUrl: `${process.env.NEXTAUTH_URL}/${companyName}/${eventName}`,
+        registrationUrl: `${origin}/${companyName}/${eventName}`,
       },
     });
   } catch (error) {
